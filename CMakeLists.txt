@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(OpenGLExample)
 
+set(CMAKE_CXX_STANDARD 11)
+
 # Add .lib files
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
@@ -13,10 +15,6 @@ file(GLOB_RECURSE SOURCE_FILES
 file(GLOB_RECURSE HEADER_FILES 
 	${CMAKE_SOURCE_DIR}/src/*.h
 	${CMAKE_SOURCE_DIR}/src/*.hpp)
-
-# Configure assets header file
-configure_file(src/helpers/RootDir.h.in src/helpers/RootDir.h)
-include_directories(${CMAKE_BINARY_DIR}/src)
 
 # Define the executable
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

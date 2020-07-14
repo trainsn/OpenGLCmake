@@ -2,8 +2,13 @@
 #include <GLFW/glfw3.h>
 
 #include "shader.h"
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 #include <iostream>
+#include <algorithm>
+using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -73,7 +78,7 @@ int main()
 
 	// render loop
 	// -----------
-	while (!glfwWindowShouldClose(window))
+	//while (!glfwWindowShouldClose(window))
 	{
 		// render
 		// ------
@@ -85,10 +90,30 @@ int main()
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_POINTS, 0, 4);
 
+		stbi_flip_vertically_on_write(1);
+		char imagepath[1024];
+		sprintf(imagepath, "res.png");
+		float* pBuffer = new float[SCR_WIDTH * SCR_HEIGHT * 4];
+		unsigned char* pImage = new unsigned char[SCR_WIDTH * SCR_HEIGHT * 3];
+		glReadBuffer(GL_BACK);
+		glReadPixels(0, 0, SCR_WIDTH, SCR_HEIGHT, GL_RGBA, GL_FLOAT, pBuffer);
+		for (unsigned int j = 0; j < SCR_HEIGHT; j++) {
+			for (unsigned int k = 0; k < SCR_WIDTH; k++) {
+				int index = j * SCR_WIDTH + k;
+				pImage[index * 3 + 0] = unsigned char(min(pBuffer[index * 4 + 0] * 255, 255.0f));
+				pImage[index * 3 + 1] = unsigned char(min(pBuffer[index * 4 + 1] * 255, 255.0f));
+				pImage[index * 3 + 2] = unsigned char(min(pBuffer[index * 4 + 2] * 255, 255.0f));
+			}
+		}
+		stbi_write_png(imagepath, SCR_WIDTH, SCR_HEIGHT, 3, pImage, SCR_WIDTH * 3);
+		delete pBuffer;
+		delete pImage;
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		//std::cout << "finish rendering" << std::endl;
 	}
 
 	// optional: de-allocate all resources once they've outlived their purpose:
